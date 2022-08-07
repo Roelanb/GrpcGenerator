@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "DemoService";
+
+package testdatabase;
+
+// The TestDatabase2 service definition.
+service TestDatabase2
+{
+// Sends a dbo Csp_rpc_procedure1
+rpc Csp_rpc_procedure1 (Csp_rpc_procedure1_Request) returns (Csp_rpc_procedure1_Response);
+
+// Sends a dbo Csp_rpc_procedure2
+rpc Csp_rpc_procedure2 (Csp_rpc_procedure2_Request) returns (Csp_rpc_procedure2_Response);
+
+}
+
+// Csp_rpc_procedure1_Request
+message Csp_rpc_procedure1_Request
+{
+   string search1 = 1;
+   google.protobuf.Timestamp startdate = 2;
+}
+// Csp_rpc_procedure1_Response
+message Csp_rpc_procedure1_Response
+{
+   string resultText = 1;
+   int32 resultCode = 2;
+   repeated Csp_rpc_procedure1_Record records = 3;
+}
+// Csp_rpc_procedure1_Record
+message Csp_rpc_procedure1_Record
+{
+   int32 id = 1;
+   string Section = 2;
+   string Code = 3;
+   string Title = 4;
+   string Description = 5;
+   string Status = 6;
+   string Project = 7;
+   string DocType = 8;
+   string Grouping = 9;
+   string Importance = 10;
+   int32 parentid = 11;
+   int32 sequenceid = 12;
+}
+// Csp_rpc_procedure2_Request
+message Csp_rpc_procedure2_Request
+{
+   string search1 = 1;
+   int32 value1 = 2;
+   real value2 = 3;
+}
+// Csp_rpc_procedure2_Response
+message Csp_rpc_procedure2_Response
+{
+   string resultText = 1;
+   int32 resultCode = 2;
+   repeated Csp_rpc_procedure2_Record records = 3;
+}
+// Csp_rpc_procedure2_Record
+message Csp_rpc_procedure2_Record
+{
+   int32 id = 1;
+   string Section = 2;
+   string Code = 3;
+   string Title = 4;
+   string Description = 5;
+   string Status = 6;
+   string Project = 7;
+   string DocType = 8;
+   string Grouping = 9;
+   string Importance = 10;
+   int32 parentid = 11;
+   int32 sequenceid = 12;
+}
