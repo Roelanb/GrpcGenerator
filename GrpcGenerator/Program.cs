@@ -12,15 +12,12 @@ namespace GrpcGenerator
         static void Main(string[] args)
         {
             var mgr = new ProtoBuilder();
+            var serviceMgr = new ServiceBuilder();
 
 
-          
 
-
-//            var pf = mgr.Generate("Data Source=(local);Initial Catalog=AdventureWorks2019;Integrated Security=True;", "AdventureWorks2019");
-            var pf = mgr.Generate("Data Source=(local);Initial Catalog=Test;Integrated Security=True;", "Test");
-
-            mgr.Generate(pf);
+            mgr.Generate(mgr.Generate("Data Source=(local);Initial Catalog=Test;Integrated Security=True;", "Test"));
+            serviceMgr.Generate(serviceMgr.Generate("Data Source=(local);Initial Catalog=Test;Integrated Security=True;", "Test"));
 
             Console.WriteLine("Please press any key to exit...");
             Console.ReadKey();

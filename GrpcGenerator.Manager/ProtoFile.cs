@@ -9,19 +9,21 @@ namespace GrpcGenerator.Manager
     public class ProtoFile
     {
         public string Name { get; set; }
-        public string Namespacce { get; set; }
+        public string Namespace { get; set; }
         public string Package { get; set; }
+        public string ServiceName { get; set; }
 
         public List<RpcCall> RpcCalls { get; set; }
         public List<RpcMessage> RpcMessages { get; set; }
 
-        public ProtoFile(SqlStructure sql)
+        public ProtoFile(string name, string? serviceName, string package, string namespaces, SqlStructure sql)
         {
 
 
-            Name = "TestDatabase";
-            Package = "testdatabase";
-            Namespacce = "DemoService";
+            Name = name;
+            ServiceName = serviceName;
+            Package = package;
+            Namespace = namespaces;
 
             RpcCalls = new List<RpcCall>();
             RpcMessages = new List<RpcMessage>();

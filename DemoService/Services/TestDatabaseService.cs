@@ -35,7 +35,8 @@ namespace DemoService.Services
                 {
                     resultRecords.Add(new Csp_rpc_procedure1_Record
                     {
-                        Id = (int)reader["id"]
+                        Id = (int)reader["id"],
+                        Section = reader["Section"].ToString(),
                     });
                 }
             }

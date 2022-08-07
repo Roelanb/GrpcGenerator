@@ -3,10 +3,9 @@ using System.Data.SqlClient;
 
 namespace GrpcGenerator.Manager
 {
-    public class ProtoBuilder
+    public class ServiceBuilder
     {
-        private static string protofileLocationService = @"D:\beecoders\GrpcGenerator\DemoService\Protos";
-        private static string protofileLocationClient = @"D:\beecoders\GrpcGenerator\DemoClient\DemoClient\Protos";
+        private static string serviceLocationService = @"D:\beecoders\GrpcGenerator\DemoService\Services";
         private static string indent = "   ";
 
         private List<string> protoFileLines;
@@ -15,67 +14,39 @@ namespace GrpcGenerator.Manager
         {
             protoFileLines = new List<string>();
 
-            protoFileLines.Add("syntax = \"proto3\";");
+            protoFileLines.Add("using Grpc.Core;");
+            protoFileLines.Add("using System.Data.SqlClient;");
             protoFileLines.Add("");
 
             // imports
-            protoFileLines.Add("import \"google/protobuf/duration.proto\";");
-            protoFileLines.Add("import \"google/protobuf/timestamp.proto\";");
-            protoFileLines.Add("");
-
-            protoFileLines.Add($"option csharp_namespace = \"{pf.Namespace}\";");
-            protoFileLines.Add("");
-            protoFileLines.Add($"package {pf.Package};");
-            protoFileLines.Add("");
-
-            protoFileLines.Add($"// The {pf.Name} service definition.");
-            protoFileLines.Add($"service {pf.Name}");
+            protoFileLines.Add($"namespace {pf.Namespace}.Services");
             protoFileLines.Add("{");
 
-            // list of rpcCalls
-            if (pf.RpcCalls != null)
-            {
-                foreach (var rpcCall in pf.RpcCalls)
-                {
-                    protoFileLines.Add($"// Sends a {rpcCall.Description}");
+            protoFileLines.Add($"public class {pf.ServiceName} : {pf.Name}.TestDatabaseBase    ");
+            protoFileLines.Add("{");
 
-                    protoFileLines.Add($"rpc {rpcCall.Name} ({rpcCall.Request}) returns ({rpcCall.Response});");
-                    protoFileLines.Add("");
 
-                }
-            }
+            protoFileLines.Add("private readonly string _connectionString;");
+            protoFileLines.Add("");
+
+            protoFileLines.Add($"public {pf.ServiceName}()");
+            protoFileLines.Add("{");
+            protoFileLines.Add($"_connectionString = \"Data Source=(local);Initial Catalog=AdventureWorks2019;Integrated Security=True;\";");
+            protoFileLines.Add("}");
+            protoFileLines.Add("");
+
+          
+            protoFileLines.Add("}");
 
             protoFileLines.Add("}");
 
-            protoFileLines.Add("");
-
-            if (pf.RpcMessages != null)
-            {
-                foreach (var rpcMessage in pf.RpcMessages)
-                {
-                    protoFileLines.Add($"// {rpcMessage.Description}");
-                    protoFileLines.Add($"message {rpcMessage.Name}");
-
-                    protoFileLines.Add("{");
-
-                    foreach (var field in rpcMessage.RpcMessageFields)
-                    {
-                        protoFileLines.Add(field.ToString());
-                    }
-                    protoFileLines.Add("}");
-
-                }
-            }
-
             // store the file
 
-            var filename = $"{pf.Name.ToLower()}.proto";
+            var filename = $"{pf.Name}Service2.cs";
 
-            var protofileService = $"{protofileLocationService}\\{filename}";
-            var protofileClient= $"{protofileLocationClient}\\{filename}";
+            var file = $"{serviceLocationService}\\{filename}";
 
-            File.WriteAllLines(protofileService, protoFileLines);
-            File.WriteAllLines(protofileClient, protoFileLines);
+            File.WriteAllLines(file, protoFileLines);
         }
 
    
@@ -94,7 +65,7 @@ namespace GrpcGenerator.Manager
             }
 
             var pf = new ProtoFile("TestDatabase",
-                            "TestDatabaseService2",
+                            "TestDatabaseService",
                             "testdatabase",
                             "DemoService",
                             sqlStructure);
