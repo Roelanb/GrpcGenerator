@@ -69,6 +69,8 @@ namespace GrpcGenerator.Manager
                             "testdatabase",
                             "DemoService",
                             sqlStructure);
+
+            Generate(pf);
             return pf;
 
         }

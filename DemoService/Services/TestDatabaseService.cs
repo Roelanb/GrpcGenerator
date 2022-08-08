@@ -5,11 +5,11 @@ using System.Data.SqlClient;
 
 namespace DemoService.Services
 {
-    public class TestDatabaseService : TestDatabase.TestDatabaseBase
+    public class TestDatabaseService2 : TestDatabase.TestDatabaseBase
     {
         private readonly string _connectionString;
 
-        public TestDatabaseService()
+        public TestDatabaseService2()
         {
             _connectionString = "Data Source=(local);Initial Catalog=AdventureWorks2019;Integrated Security=True;";
         }

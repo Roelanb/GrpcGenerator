@@ -11,13 +11,25 @@ namespace GrpcGenerator
 
         static void Main(string[] args)
         {
+            var def = new SqlDefinition
+            {
+                ServerName = "bebodbst3",
+                DatabaseName = "MES",
+                ServiceName = "RequirementsService",
+                ServiceNamespace = "DemoService.Services",
+                SqlProcedures = new List<SqlProcedure>
+                {
+                    new SqlProcedure {Catalog = "MES",Schema="dbo", Name = "csp_req_clone_project"}
+                }
+            };
+
+
             var mgr = new ProtoBuilder();
             var serviceMgr = new ServiceBuilder();
 
 
-
-            mgr.Generate(mgr.Generate("Data Source=(local);Initial Catalog=Test;Integrated Security=True;", "Test"));
-            serviceMgr.Generate(serviceMgr.Generate("Data Source=(local);Initial Catalog=Test;Integrated Security=True;", "Test"));
+            mgr.Generate(def);
+         //   serviceMgr.Generate(connstring, database);
 
             Console.WriteLine("Please press any key to exit...");
             Console.ReadKey();

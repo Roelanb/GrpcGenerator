@@ -72,24 +72,27 @@ namespace GrpcGenerator.Manager
             var filename = $"{pf.Name.ToLower()}.proto";
 
             var protofileService = $"{protofileLocationService}\\{filename}";
-            var protofileClient= $"{protofileLocationClient}\\{filename}";
+            var protofileClient = $"{protofileLocationClient}\\{filename}";
 
             File.WriteAllLines(protofileService, protoFileLines);
             File.WriteAllLines(protofileClient, protoFileLines);
         }
 
-   
-        public ProtoFile Generate(string connectionString,string database)
+        public ProtoFile Generate(SqlDefinition definition)
         {
+
+            var connectionString = $"Data Source={definition.ServerName};Initial Catalog={definition.DatabaseName};Integrated Security=True;";
+            var database = definition.DatabaseName;
+
             var sqlStructure = new SqlStructure();
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 conn.Open();
 
-                sqlStructure.SqlTables = GetSqlTables(conn.GetSchema("Tables"), conn.GetSchema("Columns"));
-        
-                sqlStructure.SqlProcedures = GetSqlProcedures(conn);
+                sqlStructure.SqlTables = GetSqlTables(conn.GetSchema("Tables"), conn.GetSchema("Columns"), definition.SqlTables);
+
+                sqlStructure.SqlProcedures = GetSqlProcedures(conn, definition.SqlProcedures);
 
             }
 
@@ -98,14 +101,17 @@ namespace GrpcGenerator.Manager
                             "testdatabase",
                             "DemoService",
                             sqlStructure);
-            return pf;
+            Generate(pf);
 
+            return pf;
         }
 
-        private static List<SqlTable> GetSqlTables(DataTable tables, DataTable columns)
+
+        private static List<SqlTable> GetSqlTables(DataTable tables, DataTable columns, List<SqlTable> filter)
         {
+            if (filter==null) return new List<SqlTable>();
             var result = new List<SqlTable>();
-         
+
             foreach (DataRow row in tables.Rows)
             {
                 var sqlTable = new SqlTable();
@@ -133,17 +139,19 @@ namespace GrpcGenerator.Manager
 
                 var sqlTable = result.FirstOrDefault(p => p.Name == table);
 
-                if (sqlTable!=null) sqlTable.SqlFields.Add(sqlField);
+                if (sqlTable != null) sqlTable.SqlFields.Add(sqlField);
 
-      
+
             }
             return result;
         }
 
 
 
-        public static List<SqlProcedure> GetSqlProcedures(SqlConnection conn )
+        public static List<SqlProcedure> GetSqlProcedures(SqlConnection conn,List<SqlProcedure> filter)
         {
+            if (filter == null) return new List<SqlProcedure>();
+
             DataTable procedures = conn.GetSchema("Procedures");
             DataTable procedureParameters = conn.GetSchema("ProcedureParameters");
 
@@ -160,8 +168,7 @@ namespace GrpcGenerator.Manager
                 sqlProcedure.Name = row["ROUTINE_NAME"].ToString();
                 sqlProcedure.Type = row["ROUTINE_TYPE"].ToString();
 
-  
-                result.Add(sqlProcedure);
+                if (filter.Any(p => p.Name == sqlProcedure.Name && p.Schema == sqlProcedure.Schema)) result.Add(sqlProcedure);
             }
 
             foreach (DataRow row in procedureParameters.Rows)
@@ -182,7 +189,9 @@ namespace GrpcGenerator.Manager
 
             foreach (var proc in result.Where(p => p.Type == "PROCEDURE"))
             {
-                SqlCommand command = new SqlCommand($"sp_describe_first_result_set N'{proc.Schema}.{proc.Name}';", conn);
+             
+                var checkCommand = $"sp_describe_first_result_set N'{proc.Schema}.{proc.Name}';";
+                SqlCommand command = new SqlCommand(checkCommand, conn);
 
                 var reader = command.ExecuteReader();
 
@@ -197,7 +206,7 @@ namespace GrpcGenerator.Manager
 
                     proc.SqlFields.Add(sqlField);
                 }
-                reader.Close(); 
+                reader.Close();
 
             }
 
