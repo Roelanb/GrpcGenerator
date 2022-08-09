@@ -6,17 +6,22 @@ namespace GrpcGenerator
 {
     internal class Program
     {
-        private static string protofileLocationService = @"D:\beecoders\GrpcGenerator\DemoService\Protos";
-        private static string protofileLocationClient = @"D:\beecoders\GrpcGenerator\DemoClient\DemoClient\Protos";
 
         static void Main(string[] args)
         {
             var def = new SqlDefinition
             {
+                Name = "Requirements",
+                Package = "requirements",
                 ServerName = "bebodbst3",
                 DatabaseName = "MES",
                 ServiceName = "RequirementsService",
                 ServiceNamespace = "DemoService.Services",
+
+                ProtoFileLocationServer = @"C:\github\GrpcGenerator\DemoService\Protos",
+                ProtoFileLocationClient = @"C:\github\GrpcGenerator\DemoClient\DemoClient\Protos",
+                ServiceFileLocation = @"C:\github\GrpcGenerator\DemoService\Services",
+
                 SqlProcedures = new List<SqlProcedure>
                 {
                     new SqlProcedure {Catalog = "MES",Schema="dbo", Name = "csp_req_clone_project"}
@@ -29,7 +34,7 @@ namespace GrpcGenerator
 
 
             mgr.Generate(def);
-         //   serviceMgr.Generate(connstring, database);
+            serviceMgr.Generate(def);
 
             Console.WriteLine("Please press any key to exit...");
             Console.ReadKey();

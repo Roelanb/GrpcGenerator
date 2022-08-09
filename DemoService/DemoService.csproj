@@ -7,7 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Protos\requirements.proto" />
     <None Remove="Protos\testdatabase.proto" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="Protos\requirements.proto" />
   </ItemGroup>
 
   <ItemGroup>

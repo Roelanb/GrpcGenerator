@@ -18,16 +18,18 @@ namespace DemoClient
 
             // The port number must match the port of the gRPC server.
             using var channel = GrpcChannel.ForAddress("https://localhost:7019");
-            var client = new TestDatabase.TestDatabaseClient(channel);
-            var reply = await client.Csp_rpc_procedure1Async(
-                              new Csp_rpc_procedure1_Request { 
-                                  Startdate = Timestamp.FromDateTimeOffset(DateTime.Now),
-                              Search1="test search"});
+            var client = new DemoService.Services.Requirements.RequirementsClient(channel);
+            var reply = await client.Csp_req_clone_projectAsync(
+                              new DemoService.Services.Csp_req_clone_project_Request
+                              {
+                                  NewProjectCode = "",
+                                  OldProjectCode = "123"
+                              });
             Console.WriteLine("Greeting: " + reply.ResultText);
 
             foreach (var record in reply.Records)
             {
-                Console.WriteLine($"{record.Id}");
+                Console.WriteLine($"{record.ResultText}");
             }
           
         }

@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Protos\requirements.proto" />
     <None Remove="Protos\testdatabase.proto" />
   </ItemGroup>
 
@@ -19,6 +20,9 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
 	  <Protobuf Include="Protos\greet.proto" GrpcServices="Client" />
+	  <Protobuf Include="Protos\requirements.proto">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Protobuf>
 	  <Protobuf Include="Protos\testdatabase.proto" GrpcServices="Client" />
   </ItemGroup>
 

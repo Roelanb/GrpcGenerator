@@ -8,6 +8,12 @@ namespace GrpcGenerator.Manager
 {
     public class SqlDefinition
     {
+        public string  Name { get; set; }
+        public string Package { get; set; }
+        public string ProtoFileLocationServer { get; set; }
+        public string ProtoFileLocationClient { get; set; }
+        public string ServiceFileLocation { get; set; }
+
         public string ServerName { get; set; }
         public string DatabaseName { get; set; }
 

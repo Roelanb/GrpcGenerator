@@ -5,13 +5,13 @@ namespace GrpcGenerator.Manager
 {
     public class ProtoBuilder
     {
-        private static string protofileLocationService = @"D:\beecoders\GrpcGenerator\DemoService\Protos";
-        private static string protofileLocationClient = @"D:\beecoders\GrpcGenerator\DemoClient\DemoClient\Protos";
+   //     private static string protofileLocationService = @"D:\beecoders\GrpcGenerator\DemoService\Protos";
+    //    private static string protofileLocationClient = @"D:\beecoders\GrpcGenerator\DemoClient\DemoClient\Protos";
         private static string indent = "   ";
 
         private List<string> protoFileLines;
 
-        public void Generate(ProtoFile pf)
+        public void Generate(ProtoFile pf, string protoFileLocationServer,string protoFileLocationClient)
         {
             protoFileLines = new List<string>();
 
@@ -71,11 +71,16 @@ namespace GrpcGenerator.Manager
 
             var filename = $"{pf.Name.ToLower()}.proto";
 
-            var protofileService = $"{protofileLocationService}\\{filename}";
-            var protofileClient = $"{protofileLocationClient}\\{filename}";
-
-            File.WriteAllLines(protofileService, protoFileLines);
-            File.WriteAllLines(protofileClient, protoFileLines);
+            if (!string.IsNullOrEmpty(protoFileLocationServer))
+            {
+                var protofileService = $"{protoFileLocationServer}\\{filename}";
+                File.WriteAllLines(protofileService, protoFileLines);
+            }
+            if (!string.IsNullOrEmpty(protoFileLocationClient))
+            {
+                var protofileClient = $"{protoFileLocationClient}\\{filename}";
+                File.WriteAllLines(protofileClient, protoFileLines);
+            }
         }
 
         public ProtoFile Generate(SqlDefinition definition)
@@ -96,12 +101,13 @@ namespace GrpcGenerator.Manager
 
             }
 
-            var pf = new ProtoFile("TestDatabase",
-                            "TestDatabaseService2",
-                            "testdatabase",
-                            "DemoService",
+            var pf = new ProtoFile(definition.Name,
+                            definition.ServiceName,
+                            definition.Package,
+                            definition.ServiceNamespace,
                             sqlStructure);
-            Generate(pf);
+
+            Generate(pf,definition.ProtoFileLocationServer,definition.ProtoFileLocationClient);
 
             return pf;
         }

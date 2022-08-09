@@ -35,7 +35,8 @@ namespace GrpcGenerator.Manager
                     Name = sqlProcedure.Name.FirstCharToUpper(),
                     Description = $"{sqlProcedure.Schema} {sqlProcedure.Name.FirstCharToUpper()}",
                     Request = $"{sqlProcedure.Name.FirstCharToUpper()}_Request",
-                    Response = $"{sqlProcedure.Name.FirstCharToUpper()}_Response"
+                    Response = $"{sqlProcedure.Name.FirstCharToUpper()}_Response",
+                    SqlProcedure = sqlProcedure,
                 };
 
                 RpcCalls.Add(rpcCall);
@@ -116,6 +117,7 @@ namespace GrpcGenerator.Manager
     {
         public string Name { get; set; }
         public string Description { get; set; }
+        public SqlProcedure SqlProcedure { get; set; }
         public string Request { get; set; }
         public string Response { get; set; }
     }

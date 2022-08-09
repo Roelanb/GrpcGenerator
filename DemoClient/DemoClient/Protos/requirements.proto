@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "DemoService.Services";
+
+package requirements;
+
+// The Requirements service definition.
+service Requirements
+{
+// Sends a dbo Csp_req_clone_project
+rpc Csp_req_clone_project (Csp_req_clone_project_Request) returns (Csp_req_clone_project_Response);
+
+}
+
+// Csp_req_clone_project_Request
+message Csp_req_clone_project_Request
+{
+   string new_project_code = 1;
+   string old_project_code = 2;
+}
+// Csp_req_clone_project_Response
+message Csp_req_clone_project_Response
+{
+   string resultText = 1;
+   int32 resultCode = 2;
+   repeated Csp_req_clone_project_Record records = 3;
+}
+// Csp_req_clone_project_Record
+message Csp_req_clone_project_Record
+{
+   string ResultCode = 1;
+   string ResultText = 2;
+}
