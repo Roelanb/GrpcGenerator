@@ -19,6 +19,7 @@ namespace GrpcGenerator.Manager
 
         public string ServiceNamespace { get; set; }
         public string ServiceName { get; set; }
+        public string ConnectionString { get; set; }
 
         public List<SqlTable> SqlTables { get; set; }
         public List<SqlProcedure> SqlProcedures { get; set; }

@@ -82,16 +82,87 @@ namespace GrpcGenerator.Manager
                 File.WriteAllLines(protofileClient, protoFileLines);
             }
         }
+        public void GenerateFromTemplate(ProtoFile pf, string protoFileLocationServer, string protoFileLocationClient)
+        {
+            
+            protoFileLines = new List<string>();
+
+            protoFileLines.Add("syntax = \"proto3\";");
+            protoFileLines.Add("");
+
+            // imports
+            protoFileLines.Add("import \"google/protobuf/duration.proto\";");
+            protoFileLines.Add("import \"google/protobuf/timestamp.proto\";");
+            protoFileLines.Add("");
+
+            protoFileLines.Add($"option csharp_namespace = \"{pf.Namespace}\";");
+            protoFileLines.Add("");
+            protoFileLines.Add($"package {pf.Package};");
+            protoFileLines.Add("");
+
+            protoFileLines.Add($"// The {pf.Name} service definition.");
+            protoFileLines.Add($"service {pf.Name}");
+            protoFileLines.Add("{");
+
+            // list of rpcCalls
+            if (pf.RpcCalls != null)
+            {
+                foreach (var rpcCall in pf.RpcCalls)
+                {
+                    protoFileLines.Add($"// Sends a {rpcCall.Description}");
+
+                    protoFileLines.Add($"rpc {rpcCall.Name} ({rpcCall.Request}) returns ({rpcCall.Response});");
+                    protoFileLines.Add("");
+
+                }
+            }
+
+            protoFileLines.Add("}");
+
+            protoFileLines.Add("");
+
+            if (pf.RpcMessages != null)
+            {
+                foreach (var rpcMessage in pf.RpcMessages)
+                {
+                    protoFileLines.Add($"// {rpcMessage.Description}");
+                    protoFileLines.Add($"message {rpcMessage.Name}");
+
+                    protoFileLines.Add("{");
+
+                    foreach (var field in rpcMessage.RpcMessageFields)
+                    {
+                        protoFileLines.Add(field.ToString());
+                    }
+                    protoFileLines.Add("}");
+
+                }
+            }
+
+            // store the file
+
+            var filename = $"{pf.Name.ToLower()}.proto";
+
+            if (!string.IsNullOrEmpty(protoFileLocationServer))
+            {
+                var protofileService = $"{protoFileLocationServer}\\{filename}";
+                File.WriteAllLines(protofileService, protoFileLines);
+            }
+            if (!string.IsNullOrEmpty(protoFileLocationClient))
+            {
+                var protofileClient = $"{protoFileLocationClient}\\{filename}";
+                File.WriteAllLines(protofileClient, protoFileLines);
+            }
+        }
 
         public ProtoFile Generate(SqlDefinition definition)
         {
 
-            var connectionString = $"Data Source={definition.ServerName};Initial Catalog={definition.DatabaseName};Integrated Security=True;";
             var database = definition.DatabaseName;
 
             var sqlStructure = new SqlStructure();
 
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (SqlConnection conn = new SqlConnection(definition.ConnectionString))
             {
                 conn.Open();
 
@@ -105,6 +176,7 @@ namespace GrpcGenerator.Manager
                             definition.ServiceName,
                             definition.Package,
                             definition.ServiceNamespace,
+                            definition.ConnectionString,
                             sqlStructure);
 
             Generate(pf,definition.ProtoFileLocationServer,definition.ProtoFileLocationClient);
@@ -130,8 +202,8 @@ namespace GrpcGenerator.Manager
                     if (col.ColumnName == "TABLE_NAME") sqlTable.Name = row[col].ToString();
                     if (col.ColumnName == "TABLE_TYPE") sqlTable.Type = row[col].ToString();
                 }
-
-                result.Add(sqlTable);
+                if (filter.Any(p => p.Name == sqlTable.Name && p.Schema == sqlTable.Schema)) result.Add(sqlTable);
+              
             }
 
             foreach (DataRow row in columns.Rows)

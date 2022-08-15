@@ -12,11 +12,12 @@ namespace GrpcGenerator.Manager
         public string Namespace { get; set; }
         public string Package { get; set; }
         public string ServiceName { get; set; }
+        public string ConnectionString { get; set; }
 
         public List<RpcCall> RpcCalls { get; set; }
         public List<RpcMessage> RpcMessages { get; set; }
 
-        public ProtoFile(string name, string? serviceName, string package, string namespaces, SqlStructure sql)
+        public ProtoFile(string name, string? serviceName, string package, string namespaces, string connectionString, SqlStructure sql)
         {
 
 
@@ -24,11 +25,32 @@ namespace GrpcGenerator.Manager
             ServiceName = serviceName;
             Package = package;
             Namespace = namespaces;
-
+            ConnectionString = connectionString;
             RpcCalls = new List<RpcCall>();
             RpcMessages = new List<RpcMessage>();
 
-            foreach (var sqlProcedure in sql.SqlProcedures)
+            MapSqlTables(sql.SqlTables);
+            MapSqlProcedures(sql.SqlProcedures);
+
+        }
+
+        public void MapSqlTables(List<SqlTable> sqlTables)
+        {
+            foreach (var sqlTable in sqlTables)
+            {
+                var rpc = sqlTable.GetData_ProtoStructure();
+
+                RpcCalls.Add(rpc.rpcCall);
+                RpcMessages.Add(rpc.rpcResult);
+                RpcMessages.Add(rpc.rpcRecord);
+                RpcMessages.Add(rpc.rpcQuery);
+
+            }
+        }
+
+        public void MapSqlProcedures(List<SqlProcedure> sqlProcedures)
+        {
+            foreach (var sqlProcedure in sqlProcedures)
             {
                 var rpcCall = new RpcCall
                 {
@@ -37,6 +59,7 @@ namespace GrpcGenerator.Manager
                     Request = $"{sqlProcedure.Name.FirstCharToUpper()}_Request",
                     Response = $"{sqlProcedure.Name.FirstCharToUpper()}_Response",
                     SqlProcedure = sqlProcedure,
+                    SqlTable = null
                 };
 
                 RpcCalls.Add(rpcCall);
@@ -57,7 +80,7 @@ namespace GrpcGenerator.Manager
                         Name = sqlField.Name.Replace("@", ""),
                         Description = "",
                         Index = paramCount++,
-                        Type = SqlTypeToRpcType(sqlField.Type)
+                        Type = Helpers.SqlTypeToRpcType(sqlField.Type)
                     };
                     rpcRequestMessage.RpcMessageFields.Add(rpcField);
                 }
@@ -75,7 +98,7 @@ namespace GrpcGenerator.Manager
                         new RpcMessageField { Index = 3, Name = "records", Type = $"repeated {sqlProcedure.Name.FirstCharToUpper()}_Record" },
                     }
                 };
-                
+
                 RpcMessages.Add(rpcResponseMessage);
 
                 var rpcResponseRecordMessage = new RpcMessage
@@ -92,32 +115,23 @@ namespace GrpcGenerator.Manager
                         Name = sqlField.Name.Replace("@", ""),
                         Description = "",
                         Index = paramCount++,
-                        Type = SqlTypeToRpcType(sqlField.Type)
+                        Type = Helpers.SqlTypeToRpcType(sqlField.Type)
                     };
                     rpcResponseRecordMessage.RpcMessageFields.Add(rpcField);
                 }
                 RpcMessages.Add(rpcResponseRecordMessage);
             }
-
-
         }
 
-        private string SqlTypeToRpcType(string sqlType)
-        {
-            if (sqlType.Contains("varchar")) return "string";
-            if (sqlType.Contains("datetime")) return "google.protobuf.Timestamp";
-            if (sqlType.Contains("int")) return "int32";
-            if (sqlType.Contains("real")) return "int32";
-
-            return sqlType;
-        }
+       
     }
 
     public class RpcCall
     {
         public string Name { get; set; }
         public string Description { get; set; }
-        public SqlProcedure SqlProcedure { get; set; }
+        public SqlProcedure? SqlProcedure { get; set; }
+        public SqlTable? SqlTable { get; set; }
         public string Request { get; set; }
         public string Response { get; set; }
     }
@@ -140,7 +154,7 @@ namespace GrpcGenerator.Manager
 
         public override string ToString()
         {
-            return $"   {Type} {Name} = {Index};";
+            return $"   {Type} {Name} = {Index};        // {Description}";
         }
     }
 }

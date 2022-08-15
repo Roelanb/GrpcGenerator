@@ -1,0 +1,36 @@
+ public override Task<{Response}> {Name}({Request} request, ServerCallContext context)
+        {
+            var resultRecords = new List<{Record}>();
+
+            using (SqlConnection connection = new SqlConnection(_connectionString))
+            {
+                var command = new SqlCommand("{SqlCommand}", connection);
+                command.CommandType = System.Data.CommandType.StoredProcedure;
+
+                {InputParameterList}
+
+                command.Connection.Open();
+                var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    resultRecords.Add(new {Record}
+                    {
+                        RecursionLevel = (int)reader["RecursionLevel"],
+                        OrganizationNode = reader["OrganizationNode"].ToString(),
+                        ManagerFirstName = reader["ManagerFirstName"].ToString(),
+                        ManagerLastName = reader["ManagerLastName"].ToString(),
+                        BusinessEntityID = (int)reader["BusinessEntityID"],
+                        FirstName = reader["FirstName"].ToString(),
+                        LastName = reader["LastName"].ToString(),
+                    });
+                }
+            }
+
+            var result = new {Response}
+            {
+                ResultCode = 0,
+                ResultText = "OK"
+            };
+            result.Records.AddRange(resultRecords);
+            return Task.FromResult(result);
+        }

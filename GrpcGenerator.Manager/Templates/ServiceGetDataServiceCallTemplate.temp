@@ -1,0 +1,28 @@
+public override Task<{Response}> {Name}({Request} request, ServerCallContext context)
+{
+    var resultRecords = new List<{Record}>();
+
+    using (SqlConnection connection = new SqlConnection(_connectionString))
+    {
+        var command = new SqlCommand("{SqlCommand}", connection);
+        command.CommandType = System.Data.CommandType.Text;
+
+        command.Connection.Open();
+        var reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+            resultRecords.Add(new {Record}
+            {
+                {SetRecordFieldList}
+            });
+        }
+    }
+
+    var result = new {Response}
+    {
+        ResultCode = 0,
+        ResultText = "OK"
+    };
+    result.Records.AddRange(resultRecords);
+    return Task.FromResult(result);
+}

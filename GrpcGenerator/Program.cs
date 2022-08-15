@@ -11,29 +11,36 @@ namespace GrpcGenerator
         {
             var def = new SqlDefinition
             {
-                Name = "Requirements",
-                Package = "requirements",
-                ServerName = "bebodbst3",
-                DatabaseName = "MES",
-                ServiceName = "RequirementsService",
+                Name = "Person",
+                Package = "adventureWorks2019",
+                ServerName = "localhost",
+                DatabaseName = "AdventureWorks2019",
+                ServiceName = "PersonService",
                 ServiceNamespace = "DemoService.Services",
-
-                ProtoFileLocationServer = @"C:\github\GrpcGenerator\DemoService\Protos",
-                ProtoFileLocationClient = @"C:\github\GrpcGenerator\DemoClient\DemoClient\Protos",
-                ServiceFileLocation = @"C:\github\GrpcGenerator\DemoService\Services",
+                ConnectionString = "Data Source=(local);Initial Catalog=AdventureWorks2019;Integrated Security=True;",
+                ProtoFileLocationServer = @"d:\beecoders\GrpcGenerator\DemoService\Protos",
+                ProtoFileLocationClient = @"d:\beecoders\GrpcGenerator\DemoClient\DemoClient\Protos",
+                ServiceFileLocation = @"d:\beecoders\GrpcGenerator\DemoService\Services",
 
                 SqlProcedures = new List<SqlProcedure>
                 {
-                    new SqlProcedure {Catalog = "MES",Schema="dbo", Name = "csp_req_clone_project"}
+                    new SqlProcedure {Catalog = "AdventureWorks2019",Schema="dbo", Name = "uspGetManagerEmployees"}
+                },
+
+                SqlTables = new List<SqlTable>
+                {
+                    new SqlTable {Catalog = "AdventureWorks2019", Schema = "Person", Name = "Person" },
+                    new SqlTable {Catalog = "AdventureWorks2019", Schema = "Person", Name = "Address" },
                 }
+
             };
 
 
-            var mgr = new ProtoBuilder();
+            var protoMgr = new ProtoBuilder();
             var serviceMgr = new ServiceBuilder();
 
 
-            mgr.Generate(def);
+            protoMgr.Generate(def);
             serviceMgr.Generate(def);
 
             Console.WriteLine("Please press any key to exit...");

@@ -7,41 +7,52 @@ namespace GrpcGenerator.Manager
     {
         private static string indent = "   ";
 
+        private static string _serviceTemplateFile = @"Templates\ServiceTemplate.temp";
+        private static string _serviceGetDataServiceCallTemplate = @"Templates\ServiceGetDataServiceCallTemplate.temp";
+        private static string _serviceProcedureCallTemplate = @"Templates\ServiceProcedureCallTemplate.temp";
 
-        public void Generate(ProtoFile pf, string serviceLocationService)
+
+  
+        public void GenerateFromTemplate(ProtoFile pf, string serviceLocationService)
         {
+            var template = File.ReadAllLines(_serviceTemplateFile);
             var protoFileLines = new List<string>();
 
-            protoFileLines.Add("using Grpc.Core;");
-            protoFileLines.Add("using System.Data.SqlClient;");
-            protoFileLines.Add("");
+            // Generate ServiceGetDataServiceCallTemplate
+            var templateGetDataServiceCall = File.ReadAllLines(_serviceGetDataServiceCallTemplate);
+            var templateGetDataServiceCall_Result = new List<string>();
 
-            // imports
-            protoFileLines.Add($"namespace {pf.Namespace}.Services");
-            protoFileLines.Add("{");
-
-            protoFileLines.Add($"public class {pf.ServiceName} : {pf.Name}.{pf.Name}Base    ");
-            protoFileLines.Add("{");
-
-
-            protoFileLines.Add("private readonly string _connectionString;");
-            protoFileLines.Add("");
-
-            protoFileLines.Add($"public {pf.ServiceName}()");
-            protoFileLines.Add("{");
-            protoFileLines.Add($"_connectionString = \"Data Source=(local);Initial Catalog=AdventureWorks2019;Integrated Security=True;\";");
-            protoFileLines.Add("}");
-            protoFileLines.Add("");
-
-            foreach (var rpcCall in pf.RpcCalls)
+            foreach (var rpcCall in pf.RpcCalls.Where(p => p.SqlTable != null))
             {
-                protoFileLines.AddRange(GenerateProcedureCall(rpcCall));
+                templateGetDataServiceCall_Result.AddRange(rpcCall.SqlTable.GetData_ServiceCallFromTemplate(templateGetDataServiceCall, indent, rpcCall));
 
             }
 
-            protoFileLines.Add("}");
+            // Generate ServiceProcedureCallTemplate
+            var templateProcedureCall = File.ReadAllLines(_serviceProcedureCallTemplate);
+            var templateProcedureCall_Result = new List<string>();
 
-            protoFileLines.Add("}");
+            foreach (var rpcCall in pf.RpcCalls.Where(p => p.SqlProcedure != null))
+            {
+                templateProcedureCall_Result.AddRange(rpcCall.SqlProcedure.Procedure_ServiceCallFromTemplate(templateProcedureCall, indent, rpcCall));
+
+            }
+
+            foreach (var templateLine in template)
+            {
+                var line = templateLine;
+
+                line = line.Replace("{Name}", $"{pf.Name}");
+                line = line.Replace("{Namespace}", $"{pf.Namespace}");
+                line = line.Replace("{ServiceName}", $"{pf.ServiceName}");
+                line = line.Replace("{ConnectionString}", $"{pf.ConnectionString}");
+                line = line.Replace("{ServiceGetDataServiceCallTemplate}", $"{string.Join(Environment.NewLine, templateGetDataServiceCall_Result)}");
+                line = line.Replace("{ServiceProcedureCallTemplate}", $"{string.Join(Environment.NewLine, templateProcedureCall_Result)}");
+
+                protoFileLines.Add(line);
+
+            }
+           
 
             // store the file
 
@@ -52,93 +63,14 @@ namespace GrpcGenerator.Manager
             File.WriteAllLines(file, protoFileLines);
         }
 
-        public List<string> GenerateProcedureCall(RpcCall rpcCall)
-        {
-            var protoFileLines = new List<string>();
-
-            protoFileLines.Add($"public override Task<{rpcCall.Response}> {rpcCall.Name}({rpcCall.Request} request, ServerCallContext context)");
-            protoFileLines.Add("{");
-            protoFileLines.Add($"var resultRecords = new List<{rpcCall.Name}_Record>();");
-
-            protoFileLines.Add("");
-            protoFileLines.Add($"using (SqlConnection connection = new SqlConnection(_connectionString))");
-            protoFileLines.Add("{");
-            protoFileLines.Add($"{indent}{indent}var command = new SqlCommand(\"{rpcCall.SqlProcedure.Name}\", connection);");
-            protoFileLines.Add($"{indent}{indent}command.CommandType = System.Data.CommandType.StoredProcedure;");
-            protoFileLines.Add("");
-
-            foreach (var inputParameters in rpcCall.SqlProcedure.SqlInputParameters)
-            {
-                protoFileLines.AddRange(GenerateProcedureInputParameter(inputParameters));
-            }
-            protoFileLines.Add("");
-
-            protoFileLines.Add($"{indent}{indent}command.Connection.Open();");
-            protoFileLines.Add($"{indent}{indent}var reader = command.ExecuteReader();");
-            protoFileLines.Add($"{indent}{indent}while (reader.Read())");
-            protoFileLines.Add("{");
-            protoFileLines.Add($"{indent}{indent}{indent}resultRecords.Add(new {rpcCall.Name}_Record");
-            protoFileLines.Add("{");
-            foreach (var sqlField in rpcCall.SqlProcedure.SqlFields)
-            {
-                protoFileLines.AddRange(GenerateProcedureResult(sqlField));
-
-            }
-            protoFileLines.Add("});");
-            
-            protoFileLines.Add("}");
-
-            protoFileLines.Add("}");
-
-            protoFileLines.Add("");
-
-            protoFileLines.Add($"var result = new {rpcCall.Response}");
-            protoFileLines.Add("{");
-            protoFileLines.Add($"{indent}ResultCode = 0,");
-            protoFileLines.Add($"{indent}ResultText = \"OK\"");
-            protoFileLines.Add("};");
-
-            protoFileLines.Add($"result.Records.AddRange(resultRecords);");
-            protoFileLines.Add($"return Task.FromResult(result);");
-
-
-            protoFileLines.Add("}");
-
-            return protoFileLines;
-        }
-
-        public List<string> GenerateProcedureInputParameter(SqlField sqlField)
-        {
-            var protoFileLines = new List<string>();
-
-            protoFileLines.Add($"{indent}{indent}command.Parameters.Add(\"{sqlField.Name}\",System.Data.SqlDbType.DateTime );");
-            
-
-            return protoFileLines;
-        }
-
-        public List<string> GenerateProcedureResult(SqlField sqlField)
-        {
-            var protoFileLines = new List<string>();
-
-            if (sqlField.Type.ToLower()=="int")
-                protoFileLines.Add($"{indent}{indent}{indent}{sqlField.Name} = (int)reader[\"{sqlField.Name}\"],");
-            if (sqlField.Type.ToLower().Contains("varchar"))
-                protoFileLines.Add($"{indent}{indent}{indent}{sqlField.Name} = reader[\"{sqlField.Name}\"].ToString(),");
-
-
-            return protoFileLines;
-        }
-
         public ProtoFile Generate(SqlDefinition definition)
         {
-            var connectionString = $"Data Source={definition.ServerName};Initial Catalog={definition.DatabaseName};Integrated Security=True;";
             var database = definition.DatabaseName;
 
 
             var sqlStructure = new SqlStructure();
 
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            using (SqlConnection conn = new SqlConnection(definition.ConnectionString))
             {
                 conn.Open();
 
@@ -152,9 +84,10 @@ namespace GrpcGenerator.Manager
                             definition.ServiceName,
                             definition.Package,
                             definition.ServiceNamespace,
+                            definition.ConnectionString,
                             sqlStructure);
 
-            Generate(pf,definition.ServiceFileLocation);
+            GenerateFromTemplate(pf,definition.ServiceFileLocation);
             return pf;
 
         }
@@ -175,8 +108,10 @@ namespace GrpcGenerator.Manager
                     if (col.ColumnName == "TABLE_NAME") sqlTable.Name = row[col].ToString();
                     if (col.ColumnName == "TABLE_TYPE") sqlTable.Type = row[col].ToString();
                 }
-
-                result.Add(sqlTable);
+                if (filter != null)
+                {
+                    if (filter.Any(p => p.Name == sqlTable.Name && p.Schema == sqlTable.Schema)) result.Add(sqlTable);
+                }
             }
 
             foreach (DataRow row in columns.Rows)
@@ -217,8 +152,10 @@ namespace GrpcGenerator.Manager
                 sqlProcedure.Name = row["ROUTINE_NAME"].ToString();
                 sqlProcedure.Type = row["ROUTINE_TYPE"].ToString();
 
-                if (filter.Any(p => p.Name == sqlProcedure.Name && p.Schema == sqlProcedure.Schema)) result.Add(sqlProcedure);
-
+                if (filter != null)
+                {
+                    if (filter.Any(p => p.Name == sqlProcedure.Name && p.Schema == sqlProcedure.Schema)) result.Add(sqlProcedure);
+                }
             }
 
             foreach (DataRow row in procedureParameters.Rows)
@@ -291,8 +228,6 @@ namespace GrpcGenerator.Manager
             return result;
         }
 
-
-
         private static void ShowDataTable(DataTable table, Int32 length)
         {
             foreach (DataColumn col in table.Columns)
@@ -315,7 +250,6 @@ namespace GrpcGenerator.Manager
                 Console.WriteLine();
             }
         }
-
 
 
         private static void ShowDataTable(DataTable table)

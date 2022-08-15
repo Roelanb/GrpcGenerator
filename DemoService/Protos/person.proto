@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "DemoService.Services";
+
+package adventureWorks2019;
+
+// The Person service definition.
+service Person
+{
+// Sends a Person.Person simple data query
+rpc PersonPerson_GetData (PersonPerson_GetData_Query) returns (PersonPerson_GetData_Result);
+
+// Sends a Person.Address simple data query
+rpc PersonAddress_GetData (PersonAddress_GetData_Query) returns (PersonAddress_GetData_Result);
+
+// Sends a dbo UspGetManagerEmployees
+rpc UspGetManagerEmployees (UspGetManagerEmployees_Request) returns (UspGetManagerEmployees_Response);
+
+}
+
+// Result data
+message PersonPerson_GetData_Result
+{
+   string resultText = 1;        // Result Text
+   int32 resultCode = 2;        // Result Code
+   repeated PersonPerson_GetData_Record records = 3;        // Result Code
+}
+// Record data
+message PersonPerson_GetData_Record
+{
+   int32 BusinessEntityID = 1;        // int
+   string PersonType = 2;        // nchar
+   bool NameStyle = 3;        // bit
+   string rowguid = 4;        // uniqueidentifier
+   google.protobuf.Timestamp ModifiedDate = 5;        // datetime
+   string FirstName = 6;        // nvarchar
+   string LastName = 7;        // nvarchar
+   int32 EmailPromotion = 8;        // int
+   string AdditionalContactInfo = 9;        // xml
+   string Demographics = 10;        // xml
+   string Suffix = 11;        // nvarchar
+   string MiddleName = 12;        // nvarchar
+   string Title = 13;        // nvarchar
+}
+// Result data
+message PersonPerson_GetData_Query
+{
+   string WhereClause = 1;        // 
+}
+// Result data
+message PersonAddress_GetData_Result
+{
+   string resultText = 1;        // Result Text
+   int32 resultCode = 2;        // Result Code
+   repeated PersonAddress_GetData_Record records = 3;        // Result Code
+}
+// Record data
+message PersonAddress_GetData_Record
+{
+   int32 AddressID = 1;        // int
+   string AddressLine1 = 2;        // nvarchar
+   string City = 3;        // nvarchar
+   int32 StateProvinceID = 4;        // int
+   string PostalCode = 5;        // nvarchar
+   string rowguid = 6;        // uniqueidentifier
+   google.protobuf.Timestamp ModifiedDate = 7;        // datetime
+   string SpatialLocation = 8;        // geography
+   string AddressLine2 = 9;        // nvarchar
+}
+// Result data
+message PersonAddress_GetData_Query
+{
+   string WhereClause = 1;        // 
+}
+// UspGetManagerEmployees_Request
+message UspGetManagerEmployees_Request
+{
+   int32 BusinessEntityID = 1;        // 
+}
+// UspGetManagerEmployees_Response
+message UspGetManagerEmployees_Response
+{
+   string resultText = 1;        // 
+   int32 resultCode = 2;        // 
+   repeated UspGetManagerEmployees_Record records = 3;        // 
+}
+// UspGetManagerEmployees_Record
+message UspGetManagerEmployees_Record
+{
+   int32 RecursionLevel = 1;        // 
+   string OrganizationNode = 2;        // 
+   string ManagerFirstName = 3;        // 
+   string ManagerLastName = 4;        // 
+   int32 BusinessEntityID = 5;        // 
+   string FirstName = 6;        // 
+   string LastName = 7;        // 
+}

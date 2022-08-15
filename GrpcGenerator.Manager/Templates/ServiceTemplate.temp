@@ -1,0 +1,20 @@
+using Grpc.Core;
+using System.Data.SqlClient;
+
+namespace {Namespace}
+{
+    public class {ServiceName} : {Name}.{Name}Base
+    {
+        private readonly string _connectionString;
+
+        public {ServiceName}()
+        {
+            _connectionString = "{ConnectionString}";
+        }
+
+        {ServiceGetDataServiceCallTemplate}
+
+        {ServiceProcedureCallTemplate}
+       
+    }
+}
