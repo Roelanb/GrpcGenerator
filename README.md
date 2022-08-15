@@ -11,3 +11,9 @@ Based on the structure of these sql objects, gRPC protofile and gRpc .net servic
 
 ## gRPC proto file structure
 ### Table structure
+
+
+# Roadmap
+Priority 1
+ability to generate proto file
+ability to generate C# service
