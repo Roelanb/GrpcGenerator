@@ -11,10 +11,12 @@ public override Task<{Response}> {Name}({Request} request, ServerCallContext con
         var reader = command.ExecuteReader();
         while (reader.Read())
         {
-            resultRecords.Add(new {Record}
-            {
-                {SetRecordFieldList}
-            });
+            var rec = new {Record}();
+
+            {SetRecordFieldList}
+
+            
+            resultRecords.Add(rec);
         }
     }
 

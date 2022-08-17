@@ -13,20 +13,22 @@ namespace GrpcGenerator.Manager
 
         public (RpcCall rpcCall, RpcMessage rpcResult, RpcMessage rpcQuery, RpcMessage rpcRecord) GetData_ProtoStructure()
         {
+            var simpleSchema = Schema;
+            if (simpleSchema == "dbo") simpleSchema = "";
 
             var rpcCall = new RpcCall
             {
-                Name = $"{Schema}{Name}_GetData",
+                Name = $"{simpleSchema}{Name}_GetData",
                 Description = $"{Schema}.{Name} simple data query",
-                Request = $"{Schema}{Name}_GetData_Query",
-                Response = $"{Schema}{Name}_GetData_Result",
+                Request = $"{simpleSchema}{Name}_GetData_Query",
+                Response = $"{simpleSchema}{Name}_GetData_Result",
                 SqlProcedure = null,
                 SqlTable = this
             };
 
             var rpcRecord = new RpcMessage
             {
-                Name = $"{Schema}{Name}_GetData_Record",
+                Name = $"{simpleSchema}{Name}_GetData_Record",
                 Description = $"Record data",
                 RpcMessageFields = new List<RpcMessageField>()
             };
@@ -45,7 +47,7 @@ namespace GrpcGenerator.Manager
 
             var rpcResult = new RpcMessage
             {
-                Name = $"{Schema}{Name}_GetData_Result",
+                Name = $"{simpleSchema}{Name}_GetData_Result",
                 Description = $"Result data",
                 RpcMessageFields = new List<RpcMessageField>()
             };
@@ -71,12 +73,12 @@ namespace GrpcGenerator.Manager
                 Name = "records",
                 Description = "Result Code",
                 Index = 3,
-                Type = $"repeated {Schema}{Name}_GetData_Record"
+                Type = $"repeated {simpleSchema}{Name}_GetData_Record"
             });
 
             var rpcQuery = new RpcMessage
             {
-                Name = $"{Schema}{Name}_GetData_Query",
+                Name = $"{simpleSchema}{Name}_GetData_Query",
                 Description = $"Result data",
                 RpcMessageFields = new List<RpcMessageField>()
             };
@@ -92,6 +94,9 @@ namespace GrpcGenerator.Manager
 
         public List<string> GetData_ServiceCall(string indent, RpcCall rpcCall)
         {
+            var simpleSchema = Schema;
+            if (simpleSchema == "dbo") simpleSchema = "";
+
             var protoFileLines = new List<string>();
 
             var sqlCmd = $"select * from {rpcCall.SqlTable.Schema}.{rpcCall.SqlTable.Name}";
@@ -185,9 +190,9 @@ namespace GrpcGenerator.Manager
             var protoFileLines = new List<string>();
 
             if (sqlField.Type.ToLower() == "int")
-                protoFileLines.Add($"{indent}{indent}{indent}{sqlField.Name} = (int)reader[\"{sqlField.Name}\"],");
+                protoFileLines.Add($"{indent}{indent}{indent}if (reader[\"{sqlField.Name}\"]!=System.DBNull.Value)  rec.{sqlField.Name.FirstCharToUpper()} = (int)reader[\"{sqlField.Name}\"];");
             if (sqlField.Type.ToLower().Contains("varchar"))
-                protoFileLines.Add($"{indent}{indent}{indent}{sqlField.Name} = reader[\"{sqlField.Name}\"].ToString(),");
+                protoFileLines.Add($"{indent}{indent}{indent}rec.{sqlField.Name.FirstCharToUpper()} = reader[\"{sqlField.Name}\"].ToString();");
 
 
             return protoFileLines;

@@ -158,8 +158,7 @@ namespace GrpcGenerator.Manager
         public ProtoFile Generate(SqlDefinition definition)
         {
 
-            var database = definition.DatabaseName;
-
+           
             var sqlStructure = new SqlStructure();
 
             using (SqlConnection conn = new SqlConnection(definition.ConnectionString))
@@ -202,7 +201,11 @@ namespace GrpcGenerator.Manager
                     if (col.ColumnName == "TABLE_NAME") sqlTable.Name = row[col].ToString();
                     if (col.ColumnName == "TABLE_TYPE") sqlTable.Type = row[col].ToString();
                 }
-                if (filter.Any(p => p.Name == sqlTable.Name && p.Schema == sqlTable.Schema)) result.Add(sqlTable);
+                if (filter.Any(p => p.Name == sqlTable.Name && p.Schema == sqlTable.Schema))
+                {
+                    Console.WriteLine($"Adding table {sqlTable.Schema}.{sqlTable.Name}");
+                    result.Add(sqlTable);
+                }
               
             }
 
