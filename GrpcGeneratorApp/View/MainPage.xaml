@@ -44,14 +44,29 @@
                 </ListBox.ItemTemplate>
             </ListBox>
         </StackPanel>
-        <avalonEdit:TextEditor
-            Grid.Column="1"
-            xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
-            Name="textEditor"
-            SyntaxHighlighting="C#"
-            FontFamily="Consolas"
-            Document="{Binding ViewModel.ProtoText}"
-            FontSize="10pt"/>
+        <TabControl  Grid.Column="1">
+            <TabItem Header="ProtoFile">
+                <avalonEdit:TextEditor
+           
+                    xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+                    Name="protoFileEditor"
+                    SyntaxHighlighting="C#"
+                    FontFamily="Consolas"
+                    Document="{Binding ViewModel.ProtoText}"
+                    FontSize="10pt"/>
+            </TabItem>
+            <TabItem Header="ServiceFile">
+                <avalonEdit:TextEditor
+           
+                    xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+                    Name="serviceFileEditor"
+                    SyntaxHighlighting="C#"
+                    FontFamily="Consolas"
+                    Document="{Binding ViewModel.ServiceText}"
+                    FontSize="10pt"/>
+            </TabItem>
+        </TabControl>
+
         <!--<RichTextBox 
                 Grid.Column="1"
                 x:Name="RootTextBox"

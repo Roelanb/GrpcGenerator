@@ -87,7 +87,7 @@ namespace GrpcGenerator.Manager
 
             return protoFileLines;
         }
-        public void GenerateFromTemplate(ProtoFile pf, string protoFileLocationServer, string protoFileLocationClient)
+        public List<string> GenerateFromTemplate(ProtoFile pf, string protoFileLocationServer, string protoFileLocationClient)
         {
             
             protoFileLines = new List<string>();
@@ -158,6 +158,8 @@ namespace GrpcGenerator.Manager
                 var protofileClient = $"{protoFileLocationClient}\\{filename}";
                 File.WriteAllLines(protofileClient, protoFileLines);
             }
+
+            return protoFileLines;
         }
 
         public ProtoFile Generate(SqlDefinition definition)

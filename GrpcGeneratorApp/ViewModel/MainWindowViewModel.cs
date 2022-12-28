@@ -30,6 +30,8 @@ public partial class MainWindowViewModel
 
     [ObservableProperty]
     private TextDocument? _protoText;
+    [ObservableProperty]
+    private TextDocument? _serviceText;
 
 
     partial void OnSelectedItemChanged(SqlTable? item)
@@ -59,12 +61,17 @@ public partial class MainWindowViewModel
         };
 
         var pb = new ProtoBuilder();
+        var sb = new ServiceBuilder();
+
+
 
         var protoFile = pb.Generate(def);
+        var serviceFile = sb.Generate(def);
 
-    //    ProtoText = String.Join(Environment.NewLine, protoFile.GeneratedProtoFile);
+        //    ProtoText = String.Join(Environment.NewLine, protoFile.GeneratedProtoFile);
 
         ProtoText = new TextDocument(String.Join(Environment.NewLine, protoFile.GeneratedProtoFile));
+        ServiceText = new TextDocument(String.Join(Environment.NewLine, serviceFile.GeneratedServiceFile));
 
         //foreach (var line in protoFile.GeneratedProtoFile)
         //{

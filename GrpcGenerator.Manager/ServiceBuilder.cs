@@ -18,7 +18,7 @@ namespace GrpcGenerator.Manager
         }
 
   
-        public void GenerateFromTemplate(ProtoFile pf, string serviceLocationService)
+        public List<string> GenerateFromTemplate(ProtoFile pf, string serviceLocationService)
         {
             var template = File.ReadAllLines(_serviceTemplateFile);
             var protoFileLines = new List<string>();
@@ -59,15 +59,18 @@ namespace GrpcGenerator.Manager
                 protoFileLines.Add(line);
 
             }
-           
+
 
             // store the file
+            if (serviceLocationService != null)
+            {
+                var filename = $"{pf.Name}Service.cs";
 
-            var filename = $"{pf.Name}Service.cs";
+                var file = $"{serviceLocationService}\\{filename}";
 
-            var file = $"{serviceLocationService}\\{filename}";
-
-            File.WriteAllLines(file, protoFileLines);
+                File.WriteAllLines(file, protoFileLines);
+            }
+            return protoFileLines;
         }
 
         public ProtoFile Generate(SqlDefinition definition)
@@ -94,7 +97,9 @@ namespace GrpcGenerator.Manager
                             definition.ConnectionString,
                             sqlStructure);
 
-            GenerateFromTemplate(pf,definition.ServiceFileLocation);
+            
+
+            pf.GeneratedServiceFile= GenerateFromTemplate(pf, definition.ServiceFileLocation);
             return pf;
 
         }

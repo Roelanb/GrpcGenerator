@@ -18,7 +18,7 @@ namespace GrpcGenerator.Manager
         public List<RpcMessage> RpcMessages { get; set; }
 
         public List<string> GeneratedProtoFile { get; set; }
-
+        public List<string> GeneratedServiceFile { get; set; }
         public ProtoFile(string name, string? serviceName, string package, string namespaces, string connectionString, SqlStructure sql)
         {
 
