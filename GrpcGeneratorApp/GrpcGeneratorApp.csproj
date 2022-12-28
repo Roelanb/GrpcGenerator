@@ -18,10 +18,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AvalonEdit" Version="6.2.0.78" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.0" />
-    <PackageReference Include="Syncfusion.Edit.WPF" Version="20.4.0.38" />
     <PackageReference Include="WPF-UI" Version="2.0.3" />
   </ItemGroup>
 

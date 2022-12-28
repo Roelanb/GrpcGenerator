@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using GrpcGenerator.Manager;
 using GrpcGeneratorApp.Model;
+using ICSharpCode.AvalonEdit.Document;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -28,15 +29,14 @@ public partial class MainWindowViewModel
     private SqlTable? _selectedItem;
 
     [ObservableProperty]
-    private string? _protoText;
+    private TextDocument? _protoText;
 
 
     partial void OnSelectedItemChanged(SqlTable? item)
     {
         if (item == null) return;
 
-        ProtoText= item?.Name;
-
+      
 
         var def = new SqlDefinition
         {
@@ -62,9 +62,9 @@ public partial class MainWindowViewModel
 
         var protoFile = pb.Generate(def);
 
-        ProtoText = String.Join(Environment.NewLine, protoFile.GeneratedProtoFile);
+    //    ProtoText = String.Join(Environment.NewLine, protoFile.GeneratedProtoFile);
 
-        //ProtoText2 = new FlowDocument();
+        ProtoText = new TextDocument(String.Join(Environment.NewLine, protoFile.GeneratedProtoFile));
 
         //foreach (var line in protoFile.GeneratedProtoFile)
         //{
@@ -73,7 +73,7 @@ public partial class MainWindowViewModel
         //    p.Inlines.Add(new Run(line));
 
 
-        //    ProtoText2.Blocks.Add(p);
+        //    ProtoText.Text = "hello";
         //}
 
     }

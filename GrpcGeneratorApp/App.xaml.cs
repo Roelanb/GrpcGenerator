@@ -66,11 +66,7 @@ public partial class App
         }).Build();
 
 
-    public App()
-    {
-        //Register Syncfusion license
-        Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense("ODI5MjQ0QDMyMzAyZTM0MmUzMEx2RmRkUzRMQ3RxRUh2TTBvQnp1L1pELzVjWVJ5QUhpV0w1WWwzV3VuZDA9");
-    }
+
 
     /// <summary>
     /// Gets registered service.

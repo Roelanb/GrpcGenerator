@@ -44,17 +44,14 @@
                 </ListBox.ItemTemplate>
             </ListBox>
         </StackPanel>
-        <sf:EditControl x:Name="editControl1" BorderBrush="Black"
-                         Grid.Column="1"
-                        BorderThickness="1"
-                        Background="White" Foreground="Black" 
-                        HorizontalAlignment="Left" 
-                        Height="800" Margin="0" 
-                        VerticalAlignment="Top" Width="800"
-                        DocumentLanguage="CSharp"
-                        Text="{Binding ViewModel.ProtoText}">
-            
-        </sf:EditControl>
+        <avalonEdit:TextEditor
+            Grid.Column="1"
+            xmlns:avalonEdit="http://icsharpcode.net/sharpdevelop/avalonedit"
+            Name="textEditor"
+            SyntaxHighlighting="C#"
+            FontFamily="Consolas"
+            Document="{Binding ViewModel.ProtoText}"
+            FontSize="10pt"/>
         <!--<RichTextBox 
                 Grid.Column="1"
                 x:Name="RootTextBox"
@@ -63,7 +60,7 @@
                 Background="Transparent"
                 HorizontalScrollBarVisibility="Visible"
                 BorderThickness="0"
-               h:RichTextBoxHelper.DocumentRtf="{Binding ViewModel.ProtoText2}"
+               h:RichTextBoxHelper.DocumentRtf="{Binding ViewModel.ProtoText}"
         
                
                 VerticalScrollBarVisibility="Auto">
