@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System.Collections.ObjectModel;
+using System.Data;
 using System.Data.SqlClient;
 
 namespace GrpcGenerator.Manager
@@ -11,6 +12,10 @@ namespace GrpcGenerator.Manager
         private static string _serviceGetDataServiceCallTemplate = @"Templates\ServiceGetDataServiceCallTemplate.temp";
         private static string _serviceProcedureCallTemplate = @"Templates\ServiceProcedureCallTemplate.temp";
 
+        private string GetHeaderInfo()
+        {
+            return $"// Service Auto generated: {DateTime.Now:MMM-dd-yyyy HH:mm}";
+        }
 
   
         public void GenerateFromTemplate(ProtoFile pf, string serviceLocationService)
@@ -41,6 +46,8 @@ namespace GrpcGenerator.Manager
             foreach (var templateLine in template)
             {
                 var line = templateLine;
+
+                line = line.Replace("{HeaderInfo}", $"{GetHeaderInfo()}");
 
                 line = line.Replace("{Name}", $"{pf.Name}");
                 line = line.Replace("{Namespace}", $"{pf.Namespace}");
@@ -99,7 +106,7 @@ namespace GrpcGenerator.Manager
             foreach (DataRow row in tables.Rows)
             {
                 var sqlTable = new SqlTable();
-                sqlTable.SqlFields = new List<SqlField>();
+                sqlTable.SqlFields = new ObservableCollection<SqlField>();
 
                 foreach (DataColumn col in tables.Columns)
                 {

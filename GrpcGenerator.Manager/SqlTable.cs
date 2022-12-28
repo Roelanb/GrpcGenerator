@@ -1,14 +1,23 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System;
+using System.Collections.ObjectModel;
 
 namespace GrpcGenerator.Manager
 {
-    public class SqlTable
+    [ObservableObject]
+    public partial class SqlTable
     {
-        public string Catalog { get; set; }
-        public string Schema { get; set; }
-        public string Name { get; set; }
-        public string Type { get; set; }
-        public List<SqlField> SqlFields { get; set; }
+        [ObservableProperty]
+        private string _catalog;
+        [ObservableProperty]
+        private string _schema;
+
+        [ObservableProperty]
+        private string? _name;
+        [ObservableProperty]
+        private string _type;
+        [ObservableProperty]
+        public ObservableCollection<SqlField> _sqlFields;
 
 
         public (RpcCall rpcCall, RpcMessage rpcResult, RpcMessage rpcQuery, RpcMessage rpcRecord) GetData_ProtoStructure()

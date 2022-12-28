@@ -1,6 +1,8 @@
 using Grpc.Core;
 using System.Data.SqlClient;
 
+// Service Auto generated: Dec-22-2022 13:51
+
 namespace DemoService.Services
 {
     public class PersonService : Person.PersonBase
@@ -13,74 +15,78 @@ namespace DemoService.Services
         }
 
         public override Task<PersonPerson_GetData_Result> PersonPerson_GetData(PersonPerson_GetData_Query request, ServerCallContext context)
+{
+    var resultRecords = new List<PersonPerson_GetData_Record>();
+
+    using (SqlConnection connection = new SqlConnection(_connectionString))
+    {
+        var command = new SqlCommand("select * from Person.Person", connection);
+        command.CommandType = System.Data.CommandType.Text;
+
+        command.Connection.Open();
+        var reader = command.ExecuteReader();
+        while (reader.Read())
         {
-            var resultRecords = new List<PersonPerson_GetData_Record>();
+            var rec = new PersonPerson_GetData_Record();
 
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                var command = new SqlCommand("select * from Person.Person", connection);
-                command.CommandType = System.Data.CommandType.Text;
+                     if (reader["BusinessEntityID"]!=System.DBNull.Value)  rec.BusinessEntityID = (int)reader["BusinessEntityID"];
+         rec.FirstName = reader["FirstName"].ToString();
+         rec.LastName = reader["LastName"].ToString();
+         if (reader["EmailPromotion"]!=System.DBNull.Value)  rec.EmailPromotion = (int)reader["EmailPromotion"];
+         rec.Suffix = reader["Suffix"].ToString();
+         rec.MiddleName = reader["MiddleName"].ToString();
+         rec.Title = reader["Title"].ToString();
 
-                command.Connection.Open();
-                var reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    resultRecords.Add(new PersonPerson_GetData_Record
-                    {
-                        BusinessEntityID = (int)reader["BusinessEntityID"],
-                        FirstName = reader["FirstName"].ToString(),
-                        LastName = reader["LastName"].ToString(),
-                        EmailPromotion = (int)reader["EmailPromotion"],
-                        Suffix = reader["Suffix"].ToString(),
-                        MiddleName = reader["MiddleName"].ToString(),
-                        Title = reader["Title"].ToString(),
-                    });
-                }
-            }
-
-            var result = new PersonPerson_GetData_Result
-            {
-                ResultCode = 0,
-                ResultText = "OK"
-            };
-            result.Records.AddRange(resultRecords);
-            return Task.FromResult(result);
+            
+            resultRecords.Add(rec);
         }
-        public override Task<PersonAddress_GetData_Result> PersonAddress_GetData(PersonAddress_GetData_Query request, ServerCallContext context)
+    }
+
+    var result = new PersonPerson_GetData_Result
+    {
+        ResultCode = 0,
+        ResultText = "OK"
+    };
+    result.Records.AddRange(resultRecords);
+    return Task.FromResult(result);
+}
+public override Task<PersonAddress_GetData_Result> PersonAddress_GetData(PersonAddress_GetData_Query request, ServerCallContext context)
+{
+    var resultRecords = new List<PersonAddress_GetData_Record>();
+
+    using (SqlConnection connection = new SqlConnection(_connectionString))
+    {
+        var command = new SqlCommand("select * from Person.Address", connection);
+        command.CommandType = System.Data.CommandType.Text;
+
+        command.Connection.Open();
+        var reader = command.ExecuteReader();
+        while (reader.Read())
         {
-            var resultRecords = new List<PersonAddress_GetData_Record>();
+            var rec = new PersonAddress_GetData_Record();
 
-            using (SqlConnection connection = new SqlConnection(_connectionString))
-            {
-                var command = new SqlCommand("select * from Person.Address", connection);
-                command.CommandType = System.Data.CommandType.Text;
+                     if (reader["AddressID"]!=System.DBNull.Value)  rec.AddressID = (int)reader["AddressID"];
+         rec.AddressLine1 = reader["AddressLine1"].ToString();
+         rec.City = reader["City"].ToString();
+         if (reader["StateProvinceID"]!=System.DBNull.Value)  rec.StateProvinceID = (int)reader["StateProvinceID"];
+         rec.PostalCode = reader["PostalCode"].ToString();
+         rec.AddressLine2 = reader["AddressLine2"].ToString();
 
-                command.Connection.Open();
-                var reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    resultRecords.Add(new PersonAddress_GetData_Record
-                    {
-                        AddressID = (int)reader["AddressID"],
-                        AddressLine1 = reader["AddressLine1"].ToString(),
-                        City = reader["City"].ToString(),
-                        StateProvinceID = (int)reader["StateProvinceID"],
-                        PostalCode = reader["PostalCode"].ToString(),
-                        AddressLine2 = reader["AddressLine2"].ToString(),
-                    });
-                }
-            }
-
-            var result = new PersonAddress_GetData_Result
-            {
-                ResultCode = 0,
-                ResultText = "OK"
-            };
-            result.Records.AddRange(resultRecords);
-            return Task.FromResult(result);
+            
+            resultRecords.Add(rec);
         }
+    }
 
-        public override Task<UspGetManagerEmployees_Response> UspGetManagerEmployees(UspGetManagerEmployees_Request request, ServerCallContext context)
+    var result = new PersonAddress_GetData_Result
+    {
+        ResultCode = 0,
+        ResultText = "OK"
+    };
+    result.Records.AddRange(resultRecords);
+    return Task.FromResult(result);
+}
+
+         public override Task<UspGetManagerEmployees_Response> UspGetManagerEmployees(UspGetManagerEmployees_Request request, ServerCallContext context)
         {
             var resultRecords = new List<UspGetManagerEmployees_Record>();
 
@@ -89,8 +95,8 @@ namespace DemoService.Services
                 var command = new SqlCommand("uspGetManagerEmployees", connection);
                 command.CommandType = System.Data.CommandType.StoredProcedure;
 
-                command.Parameters.Add("@BusinessEntityID", System.Data.SqlDbType.Int);
-                command.Parameters["@BusinessEntityID"].Value = request.BusinessEntityID;
+                      command.Parameters.Add("@BusinessEntityID",System.Data.SqlDbType.Int );
+      command.Parameters["@BusinessEntityID"].Value = request.BusinessEntityID;
 
                 command.Connection.Open();
                 var reader = command.ExecuteReader();
@@ -117,6 +123,6 @@ namespace DemoService.Services
             result.Records.AddRange(resultRecords);
             return Task.FromResult(result);
         }
-
+       
     }
 }

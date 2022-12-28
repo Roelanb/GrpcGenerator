@@ -1,3 +1,4 @@
+// Auto generated proto file: Dec-22-2022 13:51
 syntax = "proto3";
 
 import "google/protobuf/duration.proto";

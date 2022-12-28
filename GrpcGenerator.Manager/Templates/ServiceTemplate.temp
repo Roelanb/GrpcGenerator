@@ -1,6 +1,8 @@
 using Grpc.Core;
 using System.Data.SqlClient;
 
+{HeaderInfo}
+
 namespace {Namespace}
 {
     public class {ServiceName} : {Name}.{Name}Base

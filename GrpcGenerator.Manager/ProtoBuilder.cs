@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System.Collections.ObjectModel;
+using System.Data;
 using System.Data.SqlClient;
 
 namespace GrpcGenerator.Manager
@@ -11,9 +12,11 @@ namespace GrpcGenerator.Manager
 
         private List<string> protoFileLines;
 
-        public void Generate(ProtoFile pf, string protoFileLocationServer,string protoFileLocationClient)
+        public List<string> Generate(ProtoFile pf, string protoFileLocationServer,string protoFileLocationClient)
         {
             protoFileLines = new List<string>();
+
+            protoFileLines.Add($"// Auto generated proto file: {DateTime.Now:MMM-dd-yyyy HH:mm}");
 
             protoFileLines.Add("syntax = \"proto3\";");
             protoFileLines.Add("");
@@ -81,6 +84,8 @@ namespace GrpcGenerator.Manager
                 var protofileClient = $"{protoFileLocationClient}\\{filename}";
                 File.WriteAllLines(protofileClient, protoFileLines);
             }
+
+            return protoFileLines;
         }
         public void GenerateFromTemplate(ProtoFile pf, string protoFileLocationServer, string protoFileLocationClient)
         {
@@ -178,21 +183,21 @@ namespace GrpcGenerator.Manager
                             definition.ConnectionString,
                             sqlStructure);
 
-            Generate(pf,definition.ProtoFileLocationServer,definition.ProtoFileLocationClient);
+            pf.GeneratedProtoFile = Generate(pf,definition.ProtoFileLocationServer,definition.ProtoFileLocationClient);
 
+            
             return pf;
         }
 
 
-        private static List<SqlTable> GetSqlTables(DataTable tables, DataTable columns, List<SqlTable> filter)
+        public List<SqlTable> GetSqlTables(DataTable tables, DataTable columns, List<SqlTable>? filter)
         {
-            if (filter==null) return new List<SqlTable>();
             var result = new List<SqlTable>();
 
             foreach (DataRow row in tables.Rows)
             {
                 var sqlTable = new SqlTable();
-                sqlTable.SqlFields = new List<SqlField>();
+                sqlTable.SqlFields = new ObservableCollection<SqlField>();
 
                 foreach (DataColumn col in tables.Columns)
                 {
@@ -201,12 +206,19 @@ namespace GrpcGenerator.Manager
                     if (col.ColumnName == "TABLE_NAME") sqlTable.Name = row[col].ToString();
                     if (col.ColumnName == "TABLE_TYPE") sqlTable.Type = row[col].ToString();
                 }
-                if (filter.Any(p => p.Name == sqlTable.Name && p.Schema == sqlTable.Schema))
+                if (filter == null)
                 {
-                    Console.WriteLine($"Adding table {sqlTable.Schema}.{sqlTable.Name}");
                     result.Add(sqlTable);
                 }
-              
+                else
+                {
+
+                    if (filter.Any(p => p.Name == sqlTable.Name && p.Schema == sqlTable.Schema))
+                    {
+                        Console.WriteLine($"Adding table {sqlTable.Schema}.{sqlTable.Name}");
+                        result.Add(sqlTable);
+                    }
+                }
             }
 
             foreach (DataRow row in columns.Rows)
